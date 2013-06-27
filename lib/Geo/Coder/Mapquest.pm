@@ -18,6 +18,7 @@ sub new {
     my %params = (@params % 2) ? (apikey => @params) : @params;
 
     my $key = $params{apikey} or croak q('apikey' is required);
+    $params{open} = defined $params{open} ? $params{open} : 0;
 
     my $self = bless \ %params, $class;
     $self->{key} = uri_unescape($key),
@@ -61,8 +62,9 @@ sub geocode {
     $location = Encode::encode('utf-8', $location);
 
     my $country = $params{country};
+    my $host    = $self->{open} ? 'open' : 'www';
 
-    my $uri = URI->new('http://www.mapquestapi.com/geocoding/v1/address');
+    my $uri = URI->new("http://$host.mapquestapi.com/geocoding/v1/address");
     $uri->query_form(
         key      => $self->{key},
         location => $location,
@@ -163,6 +165,7 @@ Geocoding Web Service.
     $geocoder = Geo::Coder::Mapquest->new(apikey => 'Your API key')
     $geocoder = Geo::Coder::Mapquest->new(
         apikey => 'Your API key'
+        open   => 1,
         https  => 1,
         debug  => 1,
     )
@@ -171,6 +174,8 @@ Creates a new geocoding object.
 
 A valid developer 'apikey' is required. See L</NOTES> on how to obtain one
 and set it up.
+
+Accepts an optional B<open> parameter for using the open data platform.
 
 Accepts an optional B<https> parameter for securing network traffic.
 
